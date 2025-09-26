@@ -1,82 +1,88 @@
-import { Anchor, TextInput } from '@mantine/core'
+import { Anchor, TextInput } from '@mantine/core';
 import { Text, Center, Stack, Button } from "@mantine/core";
 import React, { useState } from "react";
-import QRCode from "react-qr-code";   // ✅ Import QRCode
+import QRCode from "react-qr-code";
 import Service from '../../utils/http';
 
 const UrlShortner = () => {
   const service = new Service();
-  const [OriginalUrl, setOriginalUrl] = useState('');
-  const [CustomUrl, setCustomUrl] = useState('');
-  const [Title, setTitle] = useState('');
-  const [Expiry, setExpiry] = useState('');
-  const [ShortUrlData, setShortUrlData] = useState(null);
-
-  
+  const [originalUrl, setOriginalUrl] = useState('');
+  const [customUrl, setCustomUrl] = useState('');
+  const [title, setTitle] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [shortUrlData, setShortUrlData] = useState(null);
 
   const getShortUrl = async () => {
-    const response = await service.post('s', {
-      customUrl: CustomUrl,
-      originalUrl: OriginalUrl,
-      expiresAt: Expiry,
-      title: Title
-    });
-    console.log(response);
-    setShortUrlData(response.data);
+    try {
+      const response = await service.post('s', {
+        customUrl,
+        originalUrl,
+        expiresAt: expiry,
+        title
+      });
+      console.log("Short URL created:", response.data);
+      setShortUrlData(response.data);
+    } catch (err) {
+      console.error("Error creating short URL:", err);
+    }
   };
 
   return (
     <div>
       <Center style={{ minHeight: "90vh" }}>
-        {!ShortUrlData ? (
+        {!shortUrlData ? (
           <Stack style={{ width: '40vw' }}>
-            <Text size='30px' align='center'> Short Your Url Here</Text>
+            <Text size='30px' align='center'>Shorten Your URL Here</Text>
 
             <TextInput
-              label="Original Url"
+              label="Original URL"
               withAsterisk
               onChange={(e) => setOriginalUrl(e.target.value)}
-              value={OriginalUrl}
+              value={originalUrl}
             />
             <TextInput
-              label="Customise your Url (optional)"
+              label="Custom URL (optional)"
               onChange={(e) => setCustomUrl(e.target.value)}
-              value={CustomUrl}
+              value={customUrl}
             />
             <TextInput
               label="Title (optional)"
               onChange={(e) => setTitle(e.target.value)}
-              value={Title}
+              value={title}
             />
             <TextInput
-              label="Date of expiry (optional)"
-              onChange={(e) => setExpiry(e.target.value)}
-              value={Expiry}
+              label="Expiry Date (optional)"
               type="date"
+              onChange={(e) => setExpiry(e.target.value)}
+              value={expiry}
             />
 
             <Button
               variant='outline'
-              disabled={!OriginalUrl}
+              disabled={!originalUrl}
               onClick={getShortUrl}
             >
-              Generate and show Url
+              Generate Short URL
             </Button>
           </Stack>
         ) : (
           <Stack align="center" spacing="md">
-    <Anchor
-      href={`${service.getBaseURL()}/api/s/${ShortUrlData.shortCode}`}
-      target="_blank"
-    >
-      {ShortUrlData.shortCode}
-    </Anchor>
+            <Text>Here is your short URL:</Text>
 
-    <QRCode
-      value={`${service.getBaseURL()}/api/s/${ShortUrlData.shortCode}`}
-      size={180}
-    />
-  </Stack>
+            {/* ✅ Point to public redirect route /r/:shortCode */}
+            <Anchor
+              href={`${service.getBaseURL()}/s/${shortUrlData.shortCode}`}
+              target="_blank"
+            >
+              {shortUrlData.shortCode}
+            </Anchor>
+
+            <Text>Scan the QR code to open:</Text>
+          <QRCode
+              value={shortUrlData.originalUrl} // ✅ QR code points directly to original URL
+              size={180}
+            />
+          </Stack>
         )}
       </Center>
     </div>

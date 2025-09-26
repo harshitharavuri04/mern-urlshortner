@@ -31,22 +31,17 @@ export const getMyUrls = async (req, res) => {
   try {
     if (!req.user) return res.status(403).json({ message: "Unauthorized" });
 
-    const userId = req.user.id || req.user._id;
+    const userId = req.user.id;
 
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-
-    const [totalItems, shortURLs] = await Promise.all([
-      ShortURL.countDocuments({ userId }),
-      ShortURL.find({ userId }).skip(skip).limit(limit).sort({ createdAt: -1 }),
-    ]);
+    const shortURLs = await ShortURL.find({ userId, isActive: true }).sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json({
-      page,
-      limit,
-      totalPages: Math.ceil(totalItems / limit),
-      totalItems,
+      page: 1,
+      limit: shortURLs.length,
+      totalPages: 1,
+      totalItems: shortURLs.length,
       shortURLs,
     });
   } catch (error) {

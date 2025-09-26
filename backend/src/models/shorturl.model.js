@@ -5,7 +5,7 @@ const shortURLSchema = new Schema(
   {
     originalUrl: { type: String, required: true },
     shortCode: { type: String, required: true, unique: true },
-    userId: { type: Schema.Types.ObjectId, ref: "user", default: null },
+    userId: { type: Schema.Types.ObjectId, ref: "User", default: null },
     expiresAt: { type: Date, default: null },
     isActive: { type: Boolean, default: true },
     title: { type: String }, // Optional: fetched via metadata

@@ -10,6 +10,7 @@ import authRouter from "./routes/authRouter.js";
 import hwrouter from "./routes/helloWorldRouter.js";
 import userRouter from "./routes/userRouter.js";
 import shortURLRouter from "./routes/shortURLRouter.js";
+
 const app = express();
 
 // middlewares
